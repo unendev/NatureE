@@ -33,6 +33,38 @@
     </view>
     <view class="goods-title">{{details.title}}</view>
     <view class="goods-desc">{{details.description}}</view>
+    
+    <!-- 服务保障 (包含发票) -->
+    <view class="services-row">
+      <view class="service-item" wx:for="{{services}}" wx:key="name">
+        <t-icon name="{{item.icon}}" size="28rpx" color="#1D953F" />
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 商品评价 -->
+  <view class="comment-section">
+    <view class="section-header" bindtap="navToCommentsListPage">
+      <text class="title">商品评价 ({{commentsStatistics.commentCount || 128}})</text>
+      <view class="more">
+        <text>查看全部</text>
+        <t-icon name="chevron-right" size="32rpx" />
+      </view>
+    </view>
+    <view class="comment-list">
+      <view class="comment-item" wx:for="{{mockComments}}" wx:key="userName">
+        <view class="comment-user">
+          <image src="{{item.userAvatar}}" class="avatar" />
+          <text class="name">{{item.userName}}</text>
+          <view class="stars">
+            <t-icon name="star-filled" size="24rpx" color="#FF5F15" wx:for="{{item.score}}" wx:key="index" />
+          </view>
+        </view>
+        <view class="comment-content">{{item.content}}</view>
+        <view class="comment-meta">{{item.date}} · {{item.specs}}</view>
+      </view>
+    </view>
   </view>
 
   <!-- 商品详情 -->
@@ -60,6 +92,10 @@
           <t-icon name="home" size="44rpx" />
           <text>首页</text>
         </navigator>
+        <view class="btn-item" bindtap="onToggleFavorite">
+          <t-icon name="{{isFavorite ? 'heart-filled' : 'heart'}}" size="44rpx" color="{{isFavorite ? '#fa4126' : '#666'}}" />
+          <text>收藏</text>
+        </view>
         <navigator url="/pages/cart/index" open-type="switchTab" class="btn-item">
           <t-icon name="cart" size="44rpx" />
           <text>购物车</text>

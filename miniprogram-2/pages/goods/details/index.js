@@ -106,7 +106,31 @@ Page({
     pageError: null,
     quantity: 1,
     selectedSpecs: null,
-    selectedSku: null
+    selectedSku: null,
+    isFavorite: false,
+    services: [
+      { name: '正品保证', icon: 'check-circle' },
+      { name: '提供发票', icon: 'print' },
+      { name: '7天无理由退换', icon: 'backtop' }
+    ],
+    mockComments: [
+      {
+        userAvatar: 'https://tdesign.gtimg.com/mobile/demos/avatar1.png',
+        userName: '张*',
+        score: 5,
+        content: '衣服质量很好，穿着很舒服，民族风格很强烈！',
+        date: '2023-10-24',
+        specs: '颜色:白色，尺码:M'
+      },
+      {
+        userAvatar: 'https://tdesign.gtimg.com/mobile/demos/avatar2.png',
+        userName: '李*',
+        score: 5,
+        content: '非常划算，包装很精致，快递也很快。',
+        date: '2023-10-22',
+        specs: '颜色:黑色，尺码:L'
+      }
+    ]
   },
 
   // 商品状态映射
@@ -122,6 +146,15 @@ Page({
     BUY_NOW: 2,
     MIN_BUY_NUM: 1,
     MAX_BUY_NUM: 999
+  },
+
+  onToggleFavorite() {
+    const isFavorite = !this.data.isFavorite;
+    this.setData({ isFavorite });
+    wx.showToast({
+      title: isFavorite ? '已收藏' : '已取消收藏',
+      icon: 'success'
+    });
   },
 
   handlePopupHide() {

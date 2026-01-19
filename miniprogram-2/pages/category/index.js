@@ -34,6 +34,30 @@ Page({
     if (typeof this.getTabBar === 'function') {
       this.getTabBar().init();
     }
+
+    // 检查是否有外部跳转传来的分类ID
+    const initialCategoryId = wx.getStorageSync('initialCategoryId');
+    if (initialCategoryId !== null && initialCategoryId !== undefined && initialCategoryId !== '') {
+      wx.removeStorageSync('initialCategoryId');
+      this.selectCategoryById(initialCategoryId);
+    }
+  },
+
+  async selectCategoryById(id) {
+    // 确保分类已加载
+    if (!this.data.categories.length) {
+      await this.loadCategories();
+    }
+
+    const category = this.data.categories.find(c => c.id == id);
+    if (category) {
+      this.setData({
+        currentCategory: category,
+        goodsList: []
+      }, () => {
+        this.loadGoodsList();
+      });
+    }
   },
 
   /**
