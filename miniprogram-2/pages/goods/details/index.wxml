@@ -54,19 +54,21 @@
 
   <!-- 底部操作栏 -->
   <view class="bottom-bar">
-    <view class="left-btns">
-      <navigator url="/pages/home/home/index" open-type="switchTab" class="btn-item">
-        <t-icon name="home" size="44rpx" />
-        <text>首页</text>
-      </navigator>
-      <navigator url="/pages/cart/index" open-type="switchTab" class="btn-item">
-        <t-icon name="cart" size="44rpx" />
-        <text>购物车</text>
-      </navigator>
-    </view>
-    <view class="right-btns">
-      <button class="add-cart-btn" bind:tap="onAddToCart">加入购物车</button>
-      <button class="buy-now-btn" bind:tap="onBuyNow">立即购买</button>
+    <view class="bottom-bar__inner">
+      <view class="left-btns">
+        <navigator url="/pages/home/home/index" open-type="switchTab" class="btn-item">
+          <t-icon name="home" size="44rpx" />
+          <text>首页</text>
+        </navigator>
+        <navigator url="/pages/cart/index" open-type="switchTab" class="btn-item">
+          <t-icon name="cart" size="44rpx" />
+          <text>购物车</text>
+        </navigator>
+      </view>
+      <view class="right-btns">
+        <button class="add-cart-btn" bind:tap="onAddToCart">加入购物车</button>
+        <button class="buy-now-btn" bind:tap="onBuyNow">立即购买</button>
+      </view>
     </view>
   </view>
 
