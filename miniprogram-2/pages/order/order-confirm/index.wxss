@@ -175,6 +175,40 @@
   font-size: 26rpx;
 }
 
+/* 发票部分 */
+.invoice-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 0;
+}
+
+.invoice-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.invoice-left .label {
+  font-size: 28rpx;
+  color: #333;
+  margin-right: 20rpx;
+  min-width: 112rpx;
+}
+
+.invoice-left .value {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+  text-align: right;
+  margin-right: 12rpx;
+}
+
+.right-arrow {
+  color: #bbb;
+  font-size: 24rpx;
+}
+
 /* 金额信息 */
 .amount-section {
   padding-top: 24rpx;

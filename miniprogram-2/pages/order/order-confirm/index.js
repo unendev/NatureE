@@ -86,7 +86,7 @@ Page({
         const decoded = decodeURIComponent(options.goodsRequestList);
         const parsed = JSON.parse(decoded);
         goodsRequestList = Array.isArray(parsed) ? parsed : parsed.goodsRequestList;
-        
+
         if (!Array.isArray(goodsRequestList)) {
           throw new Error('无效的商品列表格式');
         }
@@ -97,18 +97,22 @@ Page({
 
       // 获取默认地址
       const address = await getDefaultAddress();
-      
-      this.setData({ 
+
+      // 检查是否有商品包含发票需求
+      const needInvoice = goodsRequestList.some(item => item.needInvoice);
+
+      this.setData({
         goodsList: goodsRequestList,
         address,
-        loading: true 
+        loading: true,
+        needInvoice
       });
 
       this.init(goodsRequestList);
     } catch (err) {
       console.error('初始化订单确认页失败:', err);
       showToast(err.message || '初始化失败');
-      
+
       setTimeout(() => {
         wx.navigateBack();
       }, 2000);
@@ -129,13 +133,13 @@ Page({
   // 检查页面是否准备就绪
   checkPageReady() {
     const { componentsReady, dataReady } = this.data;
-    
+
     // 检查所有组件是否已准备就绪
     const isComponentsReady = Object.values(componentsReady).every(ready => ready);
-    
+
     // 检查所有数据是否已加载完成
     const isDataReady = Object.values(dataReady).every(ready => ready);
-    
+
     if (isComponentsReady && isDataReady) {
       this.setData({ loading: false });
       console.log('页面加载完成');
@@ -227,10 +231,10 @@ Page({
       }
 
       const { orderId } = result;
-      
+
       // 获取要清除的商品SKU ID列表
       const skuIdsToRemove = goodsList.map(item => item.skuId);
-      
+
       // 跳转到支付页面
       wx.navigateTo({
         url: `/pages/order/order-payment/index?orderId=${orderId}`,
@@ -239,7 +243,7 @@ Page({
             // 返回上一页，清空购物车中已下单的商品
             const pages = getCurrentPages();
             const cartPage = pages[pages.length - 2];
-            
+
             if (cartPage && cartPage.route.includes('cart')) {
               // 从购物车中移除已购买的商品
               for (const skuId of skuIdsToRemove) {
@@ -415,7 +419,7 @@ Page({
           userAddressReq: { ...address, checked: true },
         });
       })
-      .catch(() => {});
+      .catch(() => { });
 
     const { userAddressReq } = this; // 收货地址
 

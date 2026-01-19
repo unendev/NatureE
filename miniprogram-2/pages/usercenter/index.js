@@ -102,7 +102,12 @@ Page({
         {
           title: '在线设计',
           tpl: 'design',
-          url: '/pages/online-design/index',
+          url: '/pages/design/design',
+        },
+        {
+          title: '我的收藏',
+          tpl: 'favorites',
+          url: '/pages/usercenter/favorites/index',
         }
       ]
     ],
@@ -160,7 +165,7 @@ Page({
   onOrderClick(e) {
     const { status } = e.currentTarget.dataset;
     console.log('点击订单', status);
-    
+
     try {
       wx.navigateTo({
         url: `/pages/order/order-list/index?status=${status}`,
