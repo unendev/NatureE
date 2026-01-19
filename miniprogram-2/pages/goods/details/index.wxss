@@ -956,6 +956,21 @@
   pointer-events: none;
 }
 
+/* 发票选择区 */
+.invoice-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30rpx;
+  padding-top: 30rpx;
+  border-top: 1rpx solid #f5f5f5;
+}
+
+.invoice-section text {
+  font-size: 28rpx;
+  color: #333;
+}
+
 /* 数量选择区 */
 .quantity-selector {
   display: flex;

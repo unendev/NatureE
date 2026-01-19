@@ -64,6 +64,7 @@ Page({
     ],
     menuList: [
       { text: '个人信息', icon: 'user', url: '/pages/usercenter/person-info/index' },
+      { text: '我的收藏', icon: 'heart', url: '/pages/usercenter/favorites/index' },
       { text: '收货地址', icon: 'location', url: '/pages/usercenter/address/list/index' },
       { text: 'AI客服', icon: 'chat', url: '/pages/ai-service/index' },
       { text: '在线设计', icon: 'edit', url: '/pages/design/design' }
@@ -80,7 +81,7 @@ Page({
     if (typeof this.getTabBar === 'function') {
       this.getTabBar().init();
     }
-    
+
     this.getUserInfo();
   },
 
@@ -88,8 +89,8 @@ Page({
     const userInfo = wx.getStorageSync('userInfo');
     // 检查是否是通过登录页面登录的
     const isLoggedIn = wx.getStorageSync('isLoggedIn');
-    this.setData({ 
-      userInfo: isLoggedIn ? userInfo : null 
+    this.setData({
+      userInfo: isLoggedIn ? userInfo : null
     });
   },
 
@@ -153,7 +154,7 @@ Page({
       return;
     }
 
-    wx.navigateTo({ 
+    wx.navigateTo({
       url,
       fail: (err) => {
         console.error('页面跳转失败:', err);
@@ -180,13 +181,13 @@ Page({
     // 清除登录状态和用户信息
     wx.removeStorageSync('userInfo');
     wx.removeStorageSync('isLoggedIn');
-    
+
     // 更新页面状态
-    this.setData({ 
+    this.setData({
       userInfo: null,
       showLogoutConfirm: false
     });
-    
+
     // 显示退出成功提示
     Toast({
       context: this,

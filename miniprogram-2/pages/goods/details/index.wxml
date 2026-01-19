@@ -150,6 +150,12 @@
           </block>
         </view>
 
+        <!-- 发票选择区 -->
+        <view class="invoice-section">
+          <text>开具发票</text>
+          <switch checked="{{needInvoice}}" bindchange="onToggleInvoice" color="#fa4126" />
+        </view>
+
         <!-- 数量选择区 -->
         <view class="quantity-selector">
           <text>购买数量</text>

@@ -107,6 +107,7 @@ Page({
     quantity: 1,
     selectedSpecs: null,
     selectedSku: null,
+    needInvoice: false,
     isFavorite: false,
     services: [
       { name: '正品保证', icon: 'check-circle' },
@@ -154,6 +155,12 @@ Page({
     wx.showToast({
       title: isFavorite ? '已收藏' : '已取消收藏',
       icon: 'success'
+    });
+  },
+
+  onToggleInvoice() {
+    this.setData({
+      needInvoice: !this.data.needInvoice
     });
   },
 
@@ -238,7 +245,8 @@ Page({
           primaryImage: selectedSku.skuImage || details.primaryImage,
           title: details.title,
           specInfo: specInfo,
-          specs: specInfo.map(spec => `${spec.name}: ${spec.specValue}`).join('，')
+          specs: specInfo.map(spec => `${spec.name}: ${spec.specValue}`).join('，'),
+          needInvoice: this.data.needInvoice
         };
 
         await addGoodsToCart(cartData);
@@ -274,7 +282,8 @@ Page({
           title: details.title,
           specInfo: specInfo,
           specs: specInfo.map(spec => `${spec.name}: ${spec.specValue}`).join('，'),
-          settlementType: 'NOW'
+          settlementType: 'NOW',
+          needInvoice: this.data.needInvoice
         }];
 
 
