@@ -110,6 +110,14 @@ Page({
     });
   },
 
+  // 处理商品点击跳转
+  goodClickHandle(e) {
+    const { goods } = e.detail;
+    wx.navigateTo({
+      url: `/pages/goods/details/index?spuId=${goods.spuId}`,
+    });
+  },
+
   // 处理分类跳转事件
   onCategory(e) {
     const { id } = e.currentTarget.dataset;

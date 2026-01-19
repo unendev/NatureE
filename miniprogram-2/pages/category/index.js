@@ -74,7 +74,7 @@ Page({
   async loadCategories() {
     try {
       const categories = await fetchCategories();
-      this.setData({ 
+      this.setData({
         categories,
         currentCategory: categories[0] || null
       }, () => {
@@ -113,7 +113,7 @@ Page({
 
   onCategoryClick(e) {
     const { category } = e.currentTarget.dataset;
-    this.setData({ 
+    this.setData({
       currentCategory: category,
       goodsList: []
     }, () => {
@@ -123,12 +123,11 @@ Page({
 
   onGoodsClick(e) {
     const { goods } = e.currentTarget.dataset;
-    if (goods) {
-      const categoryName = encodeURIComponent(this.data.currentCategory?.name || '');
+    if (goods?.spuId) {
       wx.navigateTo({
-        url: `/pages/category/list/index?categoryId=${goods.categoryId}&title=${categoryName}`,
+        url: `/pages/goods/details/index?spuId=${goods.spuId}`,
         fail: (err) => {
-          console.error('跳转商品列表页失败:', err);
+          console.error('跳转商品详情页失败:', err);
           wx.showToast({
             title: '页面跳转失败',
             icon: 'none'
