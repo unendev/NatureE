@@ -20,7 +20,7 @@ function generateSkuList(colors, sizes, basePrice, index) {
       const colorValue = parseInt(color.specValueId) * 200;  // 不同颜色差2元
       const sizeValue = parseInt(size.specValueId) * 100;   // 不同尺码差1元
       const price = goodBasePrice + colorValue + sizeValue;
-      
+
       skuList.push({
         skuId: `${skuId++}`,
         specInfo: [
@@ -37,20 +37,17 @@ function generateSkuList(colors, sizes, basePrice, index) {
       });
     });
   });
-  
+
   return skuList;
 }
 
 // 打印生成的商品数据
 export function genGood(spuId) {
-  console.log('请求商品详情，spuId:', spuId);
-  
+
   // 解析商品索引
   const index = parseInt((spuId || '').replace('goods_', '')) - 1;
-  console.log('解析商品索引:', index);
 
   if (isNaN(index) || index < 0) {
-    console.warn('商品ID格式无效:', spuId);
     return null;
   }
 
@@ -59,7 +56,7 @@ export function genGood(spuId) {
     { specValueId: '1', specValue: '白色' },
     { specValueId: '2', specValue: '黑色' }
   ];
-  
+
   const sizeSpecs = [
     { specValueId: '1', specValue: 'S' },
     { specValueId: '2', specValue: 'M' },
@@ -70,7 +67,7 @@ export function genGood(spuId) {
   const basePrice = 1990;  // 基础价格19.9元
 
   const skuList = generateSkuList(colorSpecs, sizeSpecs, basePrice, index);
-  
+
   // 计算最低和最高价格（单位：分）
   const prices = skuList.map(sku => sku.price);
   const minSalePrice = Math.min(...prices);
@@ -110,6 +107,5 @@ export function genGood(spuId) {
     }
   };
 
-  console.log('生成的商品详情:', detail);
   return detail;
 } 

@@ -49,19 +49,8 @@ Component({
 
   methods: {
     updatePrice(price) {
-      if (typeof price !== 'number') {
-        console.warn('价格必须是数字类型');
-        price = 0;
-      }
-
-      // 处理负数
-      if (price < 0) {
-        console.warn('价格不能为负数');
-        price = 0;
-      }
-
-      // 将分转换为元，四舍五入保留2位小数
-      const priceInYuan = (price / 100).toFixed(2);
+      const p = typeof price === 'number' && price >= 0 ? price : 0;
+      const priceInYuan = (p / 100).toFixed(2);
       const [integer = '0', decimal = '00'] = priceInYuan.split('.');
 
       this.setData({
@@ -70,4 +59,4 @@ Component({
       });
     }
   }
-}); 
+});
