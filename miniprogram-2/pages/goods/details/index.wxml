@@ -4,7 +4,7 @@
     class="goods-swiper"
     indicator-dots="{{true}}"
     autoplay="{{true}}"
-    interval="{{3000}}"
+    interval="{{5000}}"
     duration="{{500}}"
     circular="{{true}}"
   >
@@ -22,112 +22,164 @@
   </swiper>
 
   <!-- 商品基本信息 -->
-  <view class="goods-info">
-    <view class="goods-price">
+  <view class="goods-info-card">
+    <view class="price-row">
       <text class="price-symbol">¥</text>
       <text class="price-integer">{{minSalePrice}}</text>
       <block wx:if="{{maxSalePrice > minSalePrice}}">
-        <text class="price-range">-</text>
-        <text class="price-integer">{{maxSalePrice}}</text>
+        <text class="price-range">~ {{maxSalePrice}}</text>
       </block>
+      <text class="sales-text">已售 {{soldNum}}+</text>
     </view>
     <view class="goods-title">{{details.title}}</view>
     <view class="goods-desc">{{details.description}}</view>
+    
+    <!-- 承诺服务 -->
+    <view class="service-list">
+      <view class="service-item" wx:for="{{services}}" wx:key="text">
+        <t-icon name="{{item.icon}}" size="24rpx" color="#1D953F" />
+        <text>{{item.text}}</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 商品详情 -->
-  <view class="goods-detail">
+  <!-- 规格与包装选择 (PDD 风格入口) -->
+  <view class="option-card" bindtap="showSkuSelectPopup" data-type="select">
+    <view class="option-item">
+      <view class="option-label">选择</view>
+      <view class="option-value">{{selectedAttrStr}}</view>
+      <t-icon name="chevron-right" size="32rpx" color="#999" />
+    </view>
+    <view class="option-item">
+      <view class="option-label">包装</view>
+      <view class="option-value">
+        <block wx:for="{{packagingOptions}}" wx:key="id">
+          <text wx:if="{{item.selected}}">{{item.name}}</text>
+        </block>
+      </view>
+      <t-icon name="chevron-right" size="32rpx" color="#999" />
+    </view>
+  </view>
+
+  <!-- 用户评价 (Mock) -->
+  <view class="section-card reviews-card">
+    <view class="section-title">
+      <text>商品评价</text>
+      <view class="more-link" bindtap="navToCommentsListPage">
+        查看全部 ({{mockComments.length}}) <t-icon name="chevron-right" size="24rpx" />
+      </view>
+    </view>
+    <view class="comment-item" wx:for="{{mockComments}}" wx:key="id">
+      <view class="comment-user">
+        <image src="{{item.avatar}}" class="avatar" />
+        <text class="username">{{item.user}}</text>
+        <view class="stars">★★★★★</view>
+      </view>
+      <view class="comment-content">{{item.content}}</view>
+      <view class="comment-imgs" wx:if="{{item.images.length}}">
+        <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" class="c-img" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 商品详情图片 -->
+  <view class="section-card detail-card">
     <view class="section-title">商品详情</view>
     <view class="detail-content">
-      <text>{{details.desc}}</text>
+      <text class="detail-text">{{details.desc}}</text>
       <block wx:for="{{details.images}}" wx:key="index">
         <image 
           src="{{item}}" 
           mode="widthFix" 
           class="detail-image"
-          bind:tap="previewImage"
-          data-index="{{index}}"
+          lazy-load
         />
       </block>
     </view>
   </view>
 
-  <!-- 底部操作栏 -->
-  <view class="bottom-bar">
-    <view class="left-btns">
-      <navigator url="/pages/home/home/index" open-type="switchTab" class="btn-item">
+  <!-- 底部操作栏 (精修) -->
+  <view class="bottom-action-bar">
+    <view class="left-action-group">
+      <navigator url="/pages/home/home/index" open-type="switchTab" class="icon-btn">
         <t-icon name="home" size="44rpx" />
         <text>首页</text>
       </navigator>
-      <navigator url="/pages/cart/index" open-type="switchTab" class="btn-item">
+      <view class="icon-btn" bindtap="onToggleFavorite">
+        <t-icon name="{{isFavorite ? 'heart-filled' : 'heart'}}" size="44rpx" color="{{isFavorite ? '#fa4126' : '#333'}}" />
+        <text>收藏</text>
+      </view>
+      <navigator url="/pages/cart/index" open-type="switchTab" class="icon-btn">
+        <view class="badge" wx:if="{{cartNum > 0}}">{{cartNum}}</view>
         <t-icon name="cart" size="44rpx" />
         <text>购物车</text>
       </navigator>
     </view>
-    <view class="right-btns">
-      <button class="add-cart-btn" bind:tap="onAddToCart">加入购物车</button>
-      <button class="buy-now-btn" bind:tap="onBuyNow">立即购买</button>
+    <view class="right-action-group">
+      <view class="combined-btn">
+        <view class="add-cart" bindtap="onAddToCart">加入购物车</view>
+        <view class="buy-now" bindtap="onBuyNow">立即购买</view>
+      </view>
     </view>
   </view>
 
   <!-- 规格选择弹窗 -->
-  <view class="specs-popup {{isSpuSelectPopupShow ? 'show' : ''}}" catch:tap="hideSkuSelectPopup">
-    <view class="specs-content" catch:tap="stopPropagation">
-      <view class="popup-header">
-        <image src="{{specImg || primaryImage}}" class="goods-image" />
-        <view class="goods-info">
-          <view class="price">
-            <text class="price-symbol">¥</text>
-            <text class="price-integer">{{selectedSku ? selectedSku.price/100 : minSalePrice}}</text>
+  <t-popup visible="{{isSpuSelectPopupShow}}" placement="bottom" bind:visible-change="hideSkuSelectPopup">
+    <view class="sku-popup-content">
+      <view class="sku-header">
+        <image src="{{specImg || primaryImage}}" class="sku-goods-img" />
+        <view class="sku-info">
+          <view class="sku-price">
+            <text class="sku-symbol">¥</text>
+            <text class="sku-num">{{selectedSku ? selectedSku.price/100 : minSalePrice}}</text>
           </view>
-          <view class="selected-specs">
-            {{selectedAttrStr}}
-          </view>
-        </view>
-        <view class="close-btn" bind:tap="hideSkuSelectPopup">
-          <text class="close-icon">×</text>
+          <view class="sku-selected-text">{{selectedAttrStr}}</view>
         </view>
       </view>
 
-      <scroll-view scroll-y class="popup-content">
-        <!-- 规格选择区 -->
-        <view class="specs-section">
-          <block wx:for="{{details.specList}}" wx:key="specId">
-            <view class="spec-group">
-              <view class="spec-title">{{item.title}}</view>
-              <view class="spec-values">
-                <view 
-                  wx:for="{{item.specValueList}}" 
-                  wx:key="specValueId" 
-                  wx:for-item="value"
-                  class="spec-value {{value.selected ? 'selected' : ''}} {{value.disabled ? 'disabled' : ''}}"
-                  data-spec-id="{{item.specId}}"
-                  data-value-id="{{value.specValueId}}"
-                  bind:tap="onSpecValueClick"
-                >
-                  {{value.specValue}}
-                </view>
-              </view>
-            </view>
-          </block>
+      <scroll-view scroll-y class="sku-scroll">
+        <!-- 规格项 -->
+        <view class="sku-section" wx:for="{{details.specList}}" wx:key="specId">
+          <view class="sku-section-title">{{item.title}}</view>
+          <view class="sku-tags">
+            <view 
+              wx:for="{{item.specValueList}}" 
+              wx:key="specValueId" 
+              wx:for-item="value"
+              class="sku-tag {{value.selected ? 'active' : ''}} {{value.disabled ? 'disabled' : ''}}"
+              data-spec-id="{{item.specId}}"
+              data-value-id="{{value.specValueId}}"
+              bindtap="onSpecValueClick"
+            >{{value.specValue}}</view>
+          </view>
         </view>
 
-        <!-- 数量选择区 -->
-        <view class="quantity-selector">
-          <text>购买数量</text>
-          <view class="quantity-control">
-            <view class="minus {{buyNum <= 1 ? 'disabled' : ''}}" bind:tap="onQuantityMinus">-</view>
-            <input type="number" value="{{buyNum}}" disabled class="quantity-input" />
-            <view class="plus {{buyNum >= 999 ? 'disabled' : ''}}" bind:tap="onQuantityPlus">+</view>
+        <!-- 包装方式 (Mock) -->
+        <view class="sku-section">
+          <view class="sku-section-title">包装方式</view>
+          <view class="sku-tags">
+            <view 
+              wx:for="{{packagingOptions}}" 
+              wx:key="id"
+              class="sku-tag {{item.selected ? 'active' : ''}}"
+              bindtap="onPackagingSelect"
+              data-index="{{index}}"
+            >{{item.name}} <text class="opt-price" wx:if="{{item.price > 0}}">+¥{{item.price}}</text></view>
           </view>
+        </view>
+
+        <!-- 数量 -->
+        <view class="sku-quantity">
+          <text>购买数量</text>
+          <t-stepper value="{{buyNum}}" bind:change="changeNum" min="1" max="99" />
         </view>
       </scroll-view>
 
-      <view class="popup-footer">
-        <button class="confirm-btn" bind:tap="onConfirmBuy">
-          {{buyType === 'cart' ? '加入购物车' : '立即购买'}}
-        </button>
+      <view class="sku-footer">
+        <t-button theme="primary" block shape="round" bindtap="onConfirmBuy">确 认</t-button>
       </view>
     </view>
-  </view>
+  </t-popup>
 </view>
+
+<t-toast id="t-toast" />

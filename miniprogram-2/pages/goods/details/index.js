@@ -94,12 +94,42 @@ Page({
       available: false,
       message: ''
     },
-    // 规格选择状态
-    specSelectState: {
-      selectedSpecs: {},
-      currentSku: null,
-      isAllSelected: false
-    },
+    // 选中的规格文本
+    selectedAttrStr: '请选择规格',
+    isFavorite: false, // 是否收藏
+    // 模拟评价数据
+    mockComments: [
+      {
+        id: 1,
+        user: '阿明',
+        avatar: 'https://tdesign.gtimg.com/mobile/demos/avatar1.png',
+        score: 5,
+        content: '裙子的细节太棒了！民族刺绣非常精致，面料手感冰凉丝滑，适合夏天穿。',
+        time: '2025-06-15',
+        images: ['https://tdesign.gtimg.com/mobile/demos/example1.png']
+      },
+      {
+        id: 2,
+        user: '小云',
+        avatar: 'https://tdesign.gtimg.com/mobile/demos/avatar2.png',
+        score: 5,
+        content: '设计很有创意，把传统元素和现代风格融合得很好，穿出门回头率很高！',
+        time: '2025-06-10',
+        images: []
+      }
+    ],
+    // 模拟包装选择
+    packagingOptions: [
+      { id: 1, name: '标准简装', price: 0, selected: true },
+      { id: 2, name: '精美礼盒 (含银饰擦拭布)', price: 29, selected: false },
+      { id: 3, name: '收藏级奢选木盒', price: 88, selected: false }
+    ],
+    // 模拟服务
+    services: [
+      { icon: 'genuine', text: '正品保证' },
+      { icon: 'info-circle', text: '提供发票' },
+      { icon: 'backtop', text: '7天无理由退换' }
+    ],
     goods: null,
     specsVisible: false,
     activities: [],
@@ -135,9 +165,28 @@ Page({
     this.setData({
       isSpuSelectPopupShow: true,
       buyType: type,
-      selectedSku: null,
+      // 如果没有选中的 SKU，显示提示
+      selectedAttrStr: this.data.selectedSku ? this.data.selectedAttrStr : '请选择规格',
       buyNum: 1
     });
+  },
+
+  onToggleFavorite() {
+    const isFavorite = !this.data.isFavorite;
+    this.setData({ isFavorite });
+    wx.showToast({
+      title: isFavorite ? '已加入收藏' : '已取消收藏',
+      icon: 'success'
+    });
+  },
+
+  onPackagingSelect(e) {
+    const { index } = e.currentTarget.dataset;
+    const packagingOptions = this.data.packagingOptions.map((opt, i) => ({
+      ...opt,
+      selected: i === index
+    }));
+    this.setData({ packagingOptions });
   },
 
   hideSkuSelectPopup() {
@@ -148,7 +197,7 @@ Page({
 
   onSpecSelect(e) {
     const { selectedSpecs, isAllSelected } = e.detail;
-    
+
     if (!isAllSelected) {
       this.setData({
         selectedSku: null
@@ -210,15 +259,15 @@ Page({
           specInfo: specInfo,
           specs: specInfo.map(spec => `${spec.name}: ${spec.specValue}`).join('，')
         };
-        
+
         console.log('添加购物车数据:', cartData);
         await addGoodsToCart(cartData);
-        
+
         wx.showToast({
           title: '已加入购物车',
           icon: 'success'
         });
-        
+
         this.hideSkuSelectPopup();
       } else {
         // 构建规格信息
@@ -263,7 +312,7 @@ Page({
             console.error('跳转订单确认页失败:', err);
           }
         });
-        
+
         this.hideSkuSelectPopup();
       }
     } catch (err) {
@@ -297,7 +346,7 @@ Page({
       const { specId, valueId } = e.currentTarget.dataset;
       const { details } = this.data;
       console.log('选择规格:', specId, valueId);
-      
+
       if (!details || !details.specList) {
         console.error('商品规格数据不存在');
         return;
@@ -342,7 +391,7 @@ Page({
       const matchedSku = isAllSelected ? this.findMatchedSku(selectedSpecs) : null;
 
       // 更新状态
-      this.setData({ 
+      this.setData({
         'details.specList': updatedSpecList,
         selectedSku: matchedSku,
         specImg: matchedSku ? (matchedSku.skuImage || details.primaryImage) : details.primaryImage,
@@ -403,7 +452,7 @@ Page({
   validatePurchase() {
     const { currentSku } = this.specSelectState;
     const { stockStatus, buyNum } = this.data;
-    
+
     if (!stockStatus.available) {
       wx.showToast({
         title: stockStatus.message,
@@ -411,7 +460,7 @@ Page({
       });
       return false;
     }
-    
+
     if (!currentSku) {
       wx.showToast({
         title: '请选择完整规格',
@@ -419,7 +468,7 @@ Page({
       });
       return false;
     }
-    
+
     const skuStock = currentSku.stockInfo?.stockQuantity || 0;
     if (buyNum > skuStock) {
       wx.showToast({
@@ -428,17 +477,17 @@ Page({
       });
       return false;
     }
-    
+
     return true;
   },
 
   async addToCart() {
     try {
       if (!this.validatePurchase()) return;
-      
+
       const { currentSku } = this.specSelectState;
       const { buyNum, details } = this.data;
-      
+
       const cartData = {
         skuId: currentSku.skuId,
         spuId: details.spuId,
@@ -448,14 +497,14 @@ Page({
         title: details.title,
         specInfo: currentSku.specInfo
       };
-      
+
       await addGoodsToCart(cartData);
-      
+
       wx.showToast({
         title: '已加入购物车',
         icon: 'success'
       });
-      
+
       this.handlePopupHide();
     } catch (err) {
       console.error('加入购物车失败:', err);
@@ -505,20 +554,19 @@ Page({
       }
 
       // 处理图片路径
-      const primaryImage = details.primaryImage.startsWith('http') 
-        ? details.primaryImage 
+      const primaryImage = details.primaryImage.startsWith('http')
+        ? details.primaryImage
         : `${cdnBase}${details.primaryImage}`;
 
-      const imgSrcs = [primaryImage];
-      if (details.images?.length) {
-        details.images.forEach(img => {
-          if (!img) return;
-          const imageUrl = img.startsWith('http') ? img : `${cdnBase}${img}`;
-          if (imageUrl !== primaryImage) {
-            imgSrcs.push(imageUrl);
-          }
-        });
-      }
+      // --- 高保真图片 Mock (替换原本的随机图/无效图) ---
+      const mockImages = [
+        'https://images.unsplash.com/photo-1541013442646-64687eec824c?q=80&w=1080&auto=format&fit=crop', // 民族风服饰 1
+        'https://images.unsplash.com/photo-1594911772125-0763521e3459?q=80&w=1080&auto=format&fit=crop', // 刺绣细节
+        'https://images.unsplash.com/photo-1582845512747-e42001c95638?q=80&w=1080&auto=format&fit=crop'  // 民族银饰
+      ];
+      const imgSrcs = mockImages;
+      primaryImage = mockImages[0];
+      // ---------------------------------------------
 
       // 计算最低和最高价格
       const prices = details.skuList.map(sku => sku.price || 0);
@@ -662,7 +710,7 @@ Page({
       }
 
       const params = {};
-      
+
       Object.keys(options).forEach(key => {
         const value = options[key];
         if (!value) {
@@ -688,17 +736,17 @@ Page({
   async onLoad(options) {
     try {
       console.log('页面参数:', options);
-      
+
       // 处理页面参数
       const params = this.handleOptionsParams(options);
       const spuId = params.id || params.spuId;
-      
+
       if (!spuId) {
         this.showError('商品ID无效');
         return;
       }
 
-      this.setData({ 
+      this.setData({
         spuId,
         loading: true,
         loadError: false,
@@ -707,7 +755,7 @@ Page({
 
       // 加载商品详情
       await this.getDetail(spuId);
-      
+
       // 加载成功后再加载其他数据
       if (!this.data.loadError) {
         await Promise.all([
@@ -732,7 +780,7 @@ Page({
   initSpecData(details) {
     try {
       const { specList = [], skuList = [] } = details;
-      
+
       // 初始化规格数据
       const processedSpecList = specList.map(spec => ({
         ...spec,
@@ -742,7 +790,7 @@ Page({
           selected: false
         }))
       }));
-      
+
       this.setData({
         'details.specList': processedSpecList,
         skuArray: skuList,
@@ -763,9 +811,9 @@ Page({
 
   // 检查规格值是否可选
   isSpecValueAvailable(specValueId, skuList) {
-    return skuList.some(sku => 
-      sku.specInfo.some(spec => 
-        spec.specValueId === specValueId && 
+    return skuList.some(sku =>
+      sku.specInfo.some(spec =>
+        spec.specValueId === specValueId &&
         (sku.stockInfo?.stockQuantity > 0 || sku.stock > 0)
       )
     );
@@ -775,8 +823,8 @@ Page({
   findMatchedSku(selectedSpecs) {
     if (!this.data.skuArray || !selectedSpecs) return null;
 
-    const sku = this.data.skuArray.find(sku => 
-      sku.specInfo && sku.specInfo.every(spec => 
+    const sku = this.data.skuArray.find(sku =>
+      sku.specInfo && sku.specInfo.every(spec =>
         selectedSpecs[spec.specId] === spec.specValueId
       )
     );
@@ -804,10 +852,10 @@ Page({
     try {
       const { spuId } = this.data;
       console.log('开始加载商品详情:', spuId);
-      
+
       const goods = await fetchGood(spuId);
       console.log('获取到商品详情:', goods);
-      
+
       if (!goods) {
         throw new Error('商品不存在');
       }
@@ -826,7 +874,7 @@ Page({
       }
 
       // 更新商品数据
-      this.setData({ 
+      this.setData({
         goods,
         imgSrcs,
         loading: false,
@@ -858,7 +906,7 @@ Page({
   previewImage(e) {
     const { index } = e.currentTarget.dataset;
     const { imgSrcs } = this.data;
-    
+
     if (!imgSrcs.length) return;
 
     wx.previewImage({
@@ -874,7 +922,7 @@ Page({
   onImageError(e) {
     const { index } = e.currentTarget.dataset;
     const { imgSrcs } = this.data;
-    
+
     // 替换为默认图片
     imgSrcs[index] = '/assets/images/default-goods.png';
     this.setData({ imgSrcs });
@@ -883,12 +931,12 @@ Page({
   // 加载商品活动
   async loadActivities() {
     if (!this.data.spuId) return;
-    
+
     try {
       const activities = await fetchActivityList({
         goodsId: this.data.spuId
       });
-      
+
       this.setData({
         activities,
         loading: false
@@ -905,13 +953,13 @@ Page({
   // 加载评论数据
   async loadComments() {
     if (!this.data.spuId) return;
-    
+
     try {
       const [comments, statistics] = await Promise.all([
         getGoodsDetailsCommentList({ spuId: this.data.spuId }),
         getGoodsDetailsCommentsCount({ spuId: this.data.spuId })
       ]);
-      
+
       this.setData({
         commentsList: comments,
         commentsStatistics: statistics
@@ -933,7 +981,7 @@ Page({
   onSelectSpec(e) {
     const { specs } = this.data.details;
     const { specIndex, valueIndex } = e.currentTarget.dataset;
-    
+
     // 更新选中状态
     specs[specIndex].values.forEach((value, index) => {
       value.selected = index === valueIndex;
