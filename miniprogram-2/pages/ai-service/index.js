@@ -1,7 +1,5 @@
 import Toast from 'tdesign-miniprogram/toast/index';
-
-const token = '0847251d-f226-454f-a715-f2dcff6602f1';
-const API_URL = 'https://keyue.cloud.baidu.com/online/core/v5/stream/query';
+import aiService from '../../services/ai-service';
 
 Page({
   data: {
@@ -10,7 +8,6 @@ Page({
     inputValue: '',
     loading: false,
     scrollToMessage: '',
-    sessionId: '',
     quickQuestions: [
       '如何查看订单状态？',
       '怎么修改收货地址？',
@@ -22,117 +19,82 @@ Page({
   },
 
   onLoad() {
-    // 获取用户信息
     const userInfo = wx.getStorageSync('userInfo');
-    this.setData({ 
-      userInfo,
-      sessionId: 'session_' + Date.now()
-    });
+    this.setData({ userInfo });
+
+    // 发送欢迎语
+    this.addAIMessage('您好！我是 NatureE 的智能助手。基于通义千问大模型为您服务。您可以询问我关于商品设计、订单或是民族服饰的小知识。');
   },
 
   onInputChange(e) {
-    this.setData({
-      inputValue: e.detail.value
-    });
+    this.setData({ inputValue: e.detail.value });
   },
 
   onQuickQuestionTap(e) {
     const { question } = e.currentTarget.dataset;
-    this.setData({
-      inputValue: question
-    }, () => {
-      this.onSend();
-    });
+    this.setData({ inputValue: question }, () => this.onSend());
   },
 
   async onSend() {
-    const { inputValue, loading, sessionId } = this.data;
-    if (loading) return;
-    if (!inputValue.trim()) {
-      wx.showToast({
-        title: '请输入内容',
-        icon: 'none'
-      });
-      return;
-    }
+    const { inputValue, loading, messages } = this.data;
+    if (loading || !inputValue.trim()) return;
 
-    // 添加用户消息
-    const userMessage = {
+    const userContent = inputValue.trim();
+    const userMsg = {
       id: Date.now(),
       type: 'user',
-      content: inputValue,
+      content: userContent,
       time: new Date().toLocaleTimeString()
     };
 
     this.setData({
-      messages: [...this.data.messages, userMessage],
+      messages: [...messages, userMsg],
       inputValue: '',
       loading: true,
-      scrollToMessage: `msg-${userMessage.id}`
+      scrollToMessage: `msg-${userMsg.id}`
     });
 
     try {
-      const response = await new Promise((resolve, reject) => {
-        wx.request({
-          url: API_URL,
-          method: 'POST',
-          data: {
-            queryText: inputValue,
-            sessionId,
-            variables: {}
-          },
-          header: {
-            'Content-Type': 'application/json',
-            'token': token
-          },
-          success: resolve,
-          fail: reject
-        });
-      });
+      // 构造上下文（包含最近3轮对话以保持记忆）
+      const history = messages.slice(-6).map(m => ({
+        role: m.type === 'ai' ? 'assistant' : 'user',
+        content: m.content
+      }));
+      history.push({ role: 'user', content: userContent });
 
-      // 处理响应数据
-      const lines = response.data.split('\n');
-      let aiResponse = '';
-      
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          try {
-            const data = JSON.parse(line.slice(5));
-            if (data.answer?.[0]?.reply?.text) {
-              aiResponse += data.answer[0].reply.text;
-            }
-          } catch (e) {
-            console.error('解析响应时出错:', e);
-          }
-        }
-      }
+      // 调用阿里云通义千问
+      const result = await aiService.chatWithAI(history);
 
-      if (aiResponse) {
-        const aiMessage = {
-          id: Date.now(),
-          type: 'ai',
-          content: aiResponse,
-          time: new Date().toLocaleTimeString()
-        };
-
-        this.setData({
-          messages: [...this.data.messages, aiMessage],
-          scrollToMessage: `msg-${aiMessage.id}`
-        });
-      }
+      this.addAIMessage(result.content);
     } catch (error) {
-      console.error('发送消息失败:', error);
-      wx.showToast({
-        title: '发送失败，请重试',
-        icon: 'none'
+      console.error('AI 对话失败:', error);
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: 'AI 思考时走神了，请重试',
+        theme: 'error'
       });
     } finally {
       this.setData({ loading: false });
     }
   },
 
-  onScrollToUpper() {
-    // 可以在这里实现加载历史消息的功能
-    console.log('滚动到顶部');
+  addAIMessage(content) {
+    const aiMsg = {
+      id: Date.now(),
+      type: 'ai',
+      content: content,
+      time: new Date().toLocaleTimeString()
+    };
+    this.setData({
+      messages: [...this.data.messages, aiMsg],
+      scrollToMessage: `msg-${aiMsg.id}`
+    });
+  },
+
+  navToTryon() {
+    wx.navigateTo({
+      url: '/pages/design/design?tab=tryon', // 引导至设计中心的试衣 Tab
+    });
   }
-}); 
+});

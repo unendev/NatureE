@@ -9,6 +9,17 @@
     bindscrolltoupper="onScrollToUpper"
   >
     <view class="chat-list" id="chat-list">
+      <!-- AIGC 功能区 -->
+      <view class="aigc-zone">
+        <view class="aigc-card" bindtap="navToTryon">
+          <view class="aigc-info">
+            <view class="aigc-title">👔 AI 虚拟试衣间</view>
+            <view class="aigc-desc">上传照片，1秒查看上身效果</view>
+          </view>
+          <t-icon name="chevron-right" size="48rpx" color="#fff" />
+        </view>
+      </view>
+
       <!-- 欢迎消息 -->
       <view class="message system">
         <text>欢迎使用AI客服，我是您的智能助手，请问有什么可以帮您？</text>

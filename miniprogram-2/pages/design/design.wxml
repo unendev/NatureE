@@ -1,91 +1,123 @@
-<view class="design-container">
-  <!-- 设计选项区 -->
-  <view class="options-panel">
-    <!-- 选择区域 -->
-    <text class="section-title">基本设置</text>
-    <t-dropdown-menu>
-      <t-dropdown-item
-        label="服装类型"
-        value="{{styleIndex}}"
-        options="{{styleOptions}}"
-        bindchange="onStyleChange"
-      />
-      <t-dropdown-item
-        label="设计风格"
-        value="{{themeIndex}}"
-        options="{{themeOptions}}"
-        bindchange="onThemeChange"
-      />
-    </t-dropdown-menu>
 
-    <!-- 颜色选择 -->
-    <view class="color-section">
-      <text class="section-title">主色调</text>
-      <view class="color-options">
-        <view 
-          wx:for="{{colors}}" 
-          wx:key="index"
-          class="color-item {{selectedColor === item ? 'selected' : ''}}"
-          style="background: {{item}}"
-          bindtap="onColorSelect"
-          data-color="{{item}}"
-        ></view>
+<view class="container">
+  <!-- 顶部 Tab -->
+  <view class="tab-header">
+    <view class="tab-item {{currentTab == 'design' ? 'active' : ''}}" bindtap="onTabChange" data-value="design">AI 创意设计</view>
+    <view class="tab-item {{currentTab == 'tryon' ? 'active' : ''}}" bindtap="onTabChange" data-value="tryon">AI 虚拟试衣</view>
+    <view class="active-bar" style="left: {{currentTab == 'design' ? '25%' : '75%'}}"></view>
+  </view>
+
+  <scroll-view scroll-y class="main-scroll">
+    <!-- 设计面板 -->
+    <view class="panel" wx:if="{{currentTab == 'design'}}">
+      <view class="card">
+        <view class="label">服装类型</view>
+        <scroll-view scroll-x class="horizontal-scroll">
+          <view class="tag-row">
+            <view 
+              wx:for="{{styleOptions}}" 
+              wx:key="value" 
+              class="tag {{styleIndex == index ? 'selected' : ''}}"
+              bindtap="onStyleSelect"
+              data-index="{{index}}"
+            >{{item.label}}</view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="card">
+        <view class="label">设计风格</view>
+        <scroll-view scroll-x class="horizontal-scroll">
+          <view class="tag-row">
+            <view 
+              wx:for="{{themeOptions}}" 
+              wx:key="value" 
+              class="tag {{themeIndex == index ? 'selected' : ''}}"
+              bindtap="onThemeSelect"
+              data-index="{{index}}"
+            >{{item.label}}</view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="card">
+        <view class="label">主基调颜色</view>
+        <view class="color-grid">
+          <view 
+            wx:for="{{colors}}" 
+            wx:key="*this"
+            class="color-circle {{selectedColor == item ? 'active' : ''}}"
+            style="background: {{item}}"
+            bindtap="onColorSelect"
+            data-color="{{item}}"
+          >
+            <view class="inner-dot"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="label">个性化描述</view>
+        <textarea 
+          class="custom-textarea"
+          placeholder="描述您的灵感..."
+          value="{{description}}"
+          bindinput="onDescriptionChange"
+        />
+      </view>
+
+      <button class="action-button {{isGenerating ? 'loading' : ''}}" bindtap="onGenerate">
+        {{isGenerating ? '生成中...' : '开始生成设计'}}
+      </button>
+
+      <!-- 结果展示 (修正渲染逻辑) -->
+      <view class="result-display" wx:if="{{generatedImage}}">
+        <view class="res-label">生成设计</view>
+        <view class="res-img-box">
+          <image src="{{generatedImage}}" mode="widthFix" bindtap="onSave" />
+        </view>
+        <view class="res-actions">
+          <button class="sub-btn" bindtap="onSave">保存</button>
+          <button class="prime-btn" bindtap="syncToTryon">试穿</button>
+        </view>
       </view>
     </view>
 
-    <!-- 自定义描述 -->
-    <text class="section-title">个性化描述</text>
-    <t-textarea
-      value="{{description}}"
-      placeholder="添加更多细节描述，例如：云南特色、民族元素..."
-      maxlength="200"
-      indicator
-      bindinput="onDescriptionChange"
-      class="description-input"
-    />
-  </view>
+    <!-- 试衣面板 -->
+    <view class="panel" wx:if="{{currentTab == 'tryon'}}">
+      <view class="card tryon-setup">
+        <view class="setup-grid">
+          <view class="setup-item" bindtap="chooseTryonImage" data-type="person">
+            <text>1. 本人照片</text>
+            <view class="upload-placeholder {{personImage ? 'has-img' : ''}}">
+              <image wx:if="{{personImage}}" src="{{personImage}}" mode="aspectFill" />
+              <t-icon wx:else name="user" size="64rpx" color="#ccc" />
+            </view>
+          </view>
+          <view class="setup-item" bindtap="chooseTryonImage" data-type="cloth">
+            <text>2. 服饰图纸</text>
+            <view class="upload-placeholder {{clothImage ? 'has-img' : ''}}">
+              <image wx:if="{{clothImage}}" src="{{clothImage}}" mode="aspectFill" />
+              <t-icon wx:else name="clothes" size="64rpx" color="#ccc" />
+            </view>
+          </view>
+        </view>
+        <button class="action-button {{isTryonLoading ? 'loading' : ''}}" disabled="{{!personImage || !clothImage}}" bindtap="onStartTryon">
+          {{isTryonLoading ? '正在试穿...' : '开始虚拟试穿'}}
+        </button>
+      </view>
 
-  <!-- 预览区 -->
-  <view class="preview-area">
-    <!-- 云南特色装饰元素 - 使用CSS实现 -->
-    <view class="decoration decoration-top-right"></view>
-    <view class="decoration decoration-bottom-left"></view>
-    
-    <image 
-      wx:if="{{generatedImage}}" 
-      src="{{generatedImage}}" 
-      mode="aspectFit"
-      class="preview-image"
-      bindtap="previewImage"
-    />
-    <view wx:else class="placeholder">
-      <t-icon name="image" size="48" />
-      <text>设计预览区</text>
+      <view class="result-display" wx:if="{{tryonImage}}">
+        <view class="res-label">试衣效果</view>
+        <view class="res-img-box">
+          <image src="{{tryonImage}}" mode="widthFix" />
+        </view>
+        <view class="res-actions">
+          <button class="sub-btn" bindtap="downloadAndSave" data-url="{{tryonImage}}">保存</button>
+        </view>
+      </view>
     </view>
-  </view>
+  </scroll-view>
+</view>
 
-  <!-- 操作按钮 -->
-  <view class="action-buttons">
-    <t-button
-      block
-      theme="primary"
-      loading="{{isGenerating}}"
-      disabled="{{isGenerating}}"
-      bindtap="onGenerate"
-      size="large"
-    >
-      {{isGenerating ? '正在设计中...' : '开始设计'}}
-    </t-button>
-  </view>
-
-  <!-- 悬浮保存按钮 -->
-  <view 
-    class="floating-save-btn {{!generatedImage ? 'disabled' : ''}}"
-    bindtap="{{generatedImage ? 'onSave' : ''}}"
-  >
-    <t-icon name="download" size="24" />
-  </view>
-
-  <!-- 加载提示 -->
-  <t-toast id="t-toast" />
-</view> 
+<t-toast id="t-toast" />
