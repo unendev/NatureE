@@ -59,21 +59,14 @@ Component({
         console.warn('价格不能为负数');
         price = 0;
       }
-      
+
       // 将分转换为元，四舍五入保留2位小数
       const priceInYuan = (price / 100).toFixed(2);
       const [integer = '0', decimal = '00'] = priceInYuan.split('.');
-      
+
       this.setData({
         integerPart: integer,
         decimalPart: decimal
-      });
-
-      console.log('价格更新:', {
-        original: price,
-        priceInYuan,
-        integer: this.data.integerPart,
-        decimal: this.data.decimalPart
       });
     }
   }

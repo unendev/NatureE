@@ -70,8 +70,4 @@
   align-items: center;
 }
 
-.goods-price::before {
-  content: '¥';
-  font-size: 24rpx;
-  margin-right: 4rpx;
-} 
+ 
