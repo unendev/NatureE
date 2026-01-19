@@ -1,5 +1,5 @@
 <view class="price" style="color: {{color}}">
-  <text class="symbol">¥</text>
+  <text class="symbol">{{symbol}}</text>
   <text class="integer">{{integerPart}}</text>
   <text class="decimal {{decimalSmaller ? 'decimal--small' : ''}}">{{decimalPart ? '.' + decimalPart : ''}}</text>
 </view> 

@@ -558,15 +558,7 @@ Page({
         ? details.primaryImage
         : `${cdnBase}${details.primaryImage}`;
 
-      // --- 高保真图片 Mock (替换原本的随机图/无效图) ---
-      const mockImages = [
-        'https://images.unsplash.com/photo-1541013442646-64687eec824c?q=80&w=1080&auto=format&fit=crop', // 民族风服饰 1
-        'https://images.unsplash.com/photo-1594911772125-0763521e3459?q=80&w=1080&auto=format&fit=crop', // 刺绣细节
-        'https://images.unsplash.com/photo-1582845512747-e42001c95638?q=80&w=1080&auto=format&fit=crop'  // 民族银饰
-      ];
-      const imgSrcs = mockImages;
-      primaryImage = mockImages[0];
-      // ---------------------------------------------
+
 
       // 计算最低和最高价格
       const prices = details.skuList.map(sku => sku.price || 0);
@@ -861,17 +853,16 @@ Page({
       }
 
       // 处理图片路径
-      const imgSrcs = [];
-      if (goods.primaryImage) {
-        imgSrcs.push(goods.primaryImage);
-      }
-      if (goods.images?.length) {
-        goods.images.forEach(img => {
-          if (img && !imgSrcs.includes(img)) {
-            imgSrcs.push(img);
-          }
-        });
-      }
+      // --- 高保真图片 Mock (替换原本的随机图/无效图) ---
+      const mockImages = [
+        'https://images.unsplash.com/photo-1541013442646-64687eec824c?q=80&w=1080&auto=format&fit=crop', // 民族风服饰 1
+        'https://images.unsplash.com/photo-1594911772125-0763521e3459?q=80&w=1080&auto=format&fit=crop', // 刺绣细节
+        'https://images.unsplash.com/photo-1582845512747-e42001c95638?q=80&w=1080&auto=format&fit=crop'  // 民族银饰
+      ];
+
+      const primaryImage = mockImages[0];
+      const imgSrcs = mockImages;
+      // ---------------------------------------------
 
       // 更新商品数据
       this.setData({

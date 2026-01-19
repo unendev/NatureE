@@ -8,8 +8,8 @@
     "t-button": "tdesign-miniprogram/button/button",
     "t-swiper": "tdesign-miniprogram/swiper/swiper",
     "t-swiper-nav": "tdesign-miniprogram/swiper-nav/swiper-nav",
-    "price": "/components/price/index",
-    "goods-specs-popup": "./components/goods-specs-popup/index",
-    "specs-popup": "/components/specs-popup/index"
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-stepper": "tdesign-miniprogram/stepper/stepper",
+    "price": "/components/price/index"
   }
 }
