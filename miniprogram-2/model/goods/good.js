@@ -1,3 +1,5 @@
+import { getProductById } from './ethnic-goods';
+
 // 商品图片列表
 const goodsImages = [
   'https://tse3-mm.cn.bing.net/th/id/OIP-C.SPYMlCcMXn6atWcDeMDOcwHaKt?rs=1&pid=ImgDetMain',
@@ -106,6 +108,40 @@ export function genGood(spuId) {
       soldQuantity: Math.floor(Math.random() * 1000)
     }
   };
+
+  // 尝试获取真实数据
+  const realGood = getProductById(spuId);
+
+  if (realGood) {
+    return {
+      spuId,
+      title: realGood.title,
+      primaryImage: realGood.images[0],
+      images: realGood.images,
+      desc: [realGood.desc],
+      specList: [
+        {
+          specId: '1',
+          title: '颜色',
+          specValueList: colorSpecs
+        },
+        {
+          specId: '2',
+          title: '尺码',
+          specValueList: sizeSpecs
+        }
+      ],
+      skuList: generateSkuList(colorSpecs, sizeSpecs, realGood.price, 0),
+      minSalePrice: realGood.price,
+      maxSalePrice: realGood.price + 500,
+      maxLinePrice: Math.floor(realGood.price * 1.2),
+      stockInfo: {
+        stockQuantity: 600,
+        safeStockQuantity: 50,
+        soldQuantity: Math.floor(Math.random() * 1000)
+      }
+    };
+  }
 
   return detail;
 } 

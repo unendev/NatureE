@@ -4,6 +4,8 @@ import { request } from '../../utils/request';
 import errorHandler from '../../utils/error-handler';
 import performanceMonitor from '../../utils/performance-monitor';
 import { genGood } from '../../model/goods/good';  // 导入商品详情生成函数
+import { getAllProducts } from '../../model/goods/ethnic-goods';
+import { getCategoryNameById } from '../../model/category';
 
 // 商品图片列表
 const goodsImages = [
@@ -31,20 +33,20 @@ const categoryNames = {
 /** 获取商品列表（模拟数据） */
 async function mockFetchGoodsList(params = {}) {
   const { pageSize = 10, pageNum = 1, sortBy = 'default', sortType = 'desc' } = params;
-  
+
   // 模拟加载延迟
   await new Promise(resolve => setTimeout(resolve, 500));
-  
+
   // 生成商品列表
   const list = [];
   const startIndex = (pageNum - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  
+
   for (let i = startIndex; i < endIndex; i++) {
     // 使用与商品详情相同的价格生成逻辑
     const spuId = `goods_${i + 1}`;
     const goodDetail = genGood(spuId);
-    
+
     if (goodDetail) {
       list.push({
         id: spuId,
@@ -63,8 +65,8 @@ async function mockFetchGoodsList(params = {}) {
   // 根据排序参数处理数据
   if (sortBy !== 'default') {
     list.sort((a, b) => {
-      const compareResult = sortType === 'asc' ? 
-        a[sortBy] - b[sortBy] : 
+      const compareResult = sortType === 'asc' ?
+        a[sortBy] - b[sortBy] :
         b[sortBy] - a[sortBy];
       return compareResult;
     });
@@ -85,10 +87,10 @@ async function mockFetchGoodsList(params = {}) {
 
 /** 获取商品列表 */
 export const fetchGoodsList = async (params = {}) => {
-  const { 
-    pageNum = 1, 
-    pageSize = 20, 
-    categoryId = '', 
+  const {
+    pageNum = 1,
+    pageSize = 20,
+    categoryId = '',
     keyword = '',
     sortBy = 'default',
     sortType = 'desc'
@@ -97,75 +99,71 @@ export const fetchGoodsList = async (params = {}) => {
   try {
     // 模拟加载延迟
     await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // 生成商品列表
-    const list = [];
-    const total = 100;
-    let filteredCount = 0;
-    let currentIndex = 0;
-    
-    // 继续生成商品直到达到所需数量或已生成所有商品
-    while (list.length < pageSize && currentIndex < total) {
-      const spuId = `goods_${currentIndex + 1}`;
-      const goodDetail = genGood(spuId);
-      
-      if (goodDetail) {
-        // 根据分类ID筛选商品
-        const currentCategoryId = Math.floor(currentIndex / 9) + 1; // 每个分类9个商品
-        
-        // 检查是否符合分类和关键词条件
-        const matchesCategory = !categoryId || categoryId === '0' || parseInt(categoryId) === currentCategoryId;
-        const matchesKeyword = !keyword || 
-          goodDetail.title.includes(keyword) || 
-          (categoryNames[currentCategoryId] && categoryNames[currentCategoryId].includes(keyword));
-        
-        if (matchesCategory && matchesKeyword) {
-          filteredCount++;
-          
-          // 只添加在当前页范围内的商品
-          if (filteredCount > (pageNum - 1) * pageSize && filteredCount <= pageNum * pageSize) {
-            // 使用 Picsum Photos 生成随机图片
-            const randomImageId = Math.floor(Math.random() * 1000) + 1;
-            const imageUrl = `https://picsum.photos/300/400?random=${randomImageId}`;
-            
-            list.push({
-              id: spuId,
-              spuId,
-              name: `${categoryNames[currentCategoryId] || '民族服饰'}-${currentIndex + 1}`,
-              title: `${categoryNames[currentCategoryId] || '民族服饰'}-精品${currentIndex + 1}`,
-              price: goodDetail.minSalePrice,
-              minSalePrice: goodDetail.minSalePrice,
-              originalPrice: goodDetail.maxLinePrice,
-              image: imageUrl,
-              primaryImage: imageUrl,
-              categoryId: currentCategoryId,
-              stock: Math.floor(Math.random() * 100) + 50,
-              sales: Math.floor(Math.random() * 1000),
-              tags: ['新品', '热销'],
-              description: `${categoryNames[currentCategoryId] || '民族服饰'}，传统与时尚的完美结合`
-            });
-          }
-        }
-      }
-      currentIndex++;
-    }
 
-    // 根据排序参数处理数据
-    if (sortBy !== 'default') {
-      list.sort((a, b) => {
-        const compareResult = sortType === 'asc' ? 
-          a[sortBy] - b[sortBy] : 
-          b[sortBy] - a[sortBy];
-        return compareResult;
+    // 获取真实商品数据
+    let allGoods = getAllProducts();
+
+    // 筛选
+    if (categoryId && categoryId !== '0') {
+      allGoods = allGoods.filter(item => {
+        // 简单映射：我们的真实数据ID通常是 'goods_分类_序号'
+        // 但这里我们已经在数据里加上了 categoryId 字段
+
+        // 尝试从 ethnicGoodsList 结构中匹配
+        // 注意：getAllProducts 返回的是扁平化的 items 数组
+        // 我们需要在 ethnicGoodsList 中预置 categoryId 或者在这里通过 ID 推断
+
+        // 临时方案：通过ID前缀推断分类，或者假设数据已经包含了 categoryId
+        // 实际上我们在 ethnic-goods.js 中并没有给 item 加 categoryId，只在大对象加了
+        // 我们修改 getAllProducts 让它带上 categoryId 信息会更好
+        // 这里假设 getAllProducts 已经优化，或者我们直接通过 ID 解析
+
+        const parts = item.id.split('_');
+        const itemCatId = parts[1];
+        return itemCatId === String(categoryId);
       });
     }
 
+    if (keyword) {
+      allGoods = allGoods.filter(item =>
+        item.title.includes(keyword) ||
+        item.desc.includes(keyword)
+      );
+    }
+
+    const total = allGoods.length;
+
+    // 排序
+    if (sortBy !== 'default') {
+      allGoods.sort((a, b) => {
+        if (sortBy === 'price') {
+          return sortType === 'asc' ? a.price - b.price : b.price - a.price;
+        }
+        return 0;
+      });
+    }
+
+    // 分页
+    const startIndex = (pageNum - 1) * pageSize;
+    const list = allGoods.slice(startIndex, startIndex + pageSize).map(item => ({
+      id: item.id,
+      spuId: item.id,
+      title: item.title,
+      price: item.price,
+      minSalePrice: item.price,
+      originalPrice: Math.floor(item.price * 1.2),
+      primaryImage: item.images[0],
+      image: item.images[0],
+      tags: ['新品', '甄选'],
+      sales: Math.floor(Math.random() * 500)
+    }));
+
     return {
       list,
-      total: filteredCount,
+      total,
       pageNum,
       pageSize,
-      hasMore: filteredCount > pageNum * pageSize
+      hasMore: startIndex + pageSize < total
     };
   } catch (err) {
     console.error('获取商品列表失败:', err);
