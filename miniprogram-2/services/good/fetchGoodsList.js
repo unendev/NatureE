@@ -5,7 +5,6 @@ import errorHandler from '../../utils/error-handler';
 import performanceMonitor from '../../utils/performance-monitor';
 import { genGood } from '../../model/goods/good';  // 导入商品详情生成函数
 import { getAllProducts } from '../../model/goods/ethnic-goods';
-import { getCategoryNameById } from '../../model/category';
 
 // 商品图片列表
 const goodsImages = [
