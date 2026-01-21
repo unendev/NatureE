@@ -17,7 +17,7 @@
         lazy
       />
       <view class="goods-info">
-        <view class="goods-name">{{item.name}}</view>
+        <view class="goods-name">{{item.title}}</view>
         <price 
           price="{{item.price}}" 
           class="goods-price"

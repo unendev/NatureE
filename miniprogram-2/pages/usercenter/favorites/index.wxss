@@ -1,0 +1,8 @@
+.favorites-page {
+  padding: 20rpx;
+}
+.empty-state {
+  text-align: center;
+  margin-top: 100rpx;
+  color: #999;
+}

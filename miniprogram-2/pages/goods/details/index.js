@@ -151,6 +151,29 @@ Page({
 
   onToggleFavorite() {
     const isFavorite = !this.data.isFavorite;
+    const { spuId, details } = this.data;
+
+    // 获取当前收藏列表
+    let favorites = wx.getStorageSync('favorites') || [];
+
+    if (isFavorite) {
+      // 添加收藏
+      if (!favorites.find(item => item.spuId === spuId)) {
+        favorites.push({
+          spuId: spuId,
+          title: details.title,
+          price: details.price,
+          thumb: details.primaryImage // 使用缩略图
+        });
+      }
+    } else {
+      // 取消收藏
+      favorites = favorites.filter(item => item.spuId !== spuId);
+    }
+
+    // 保存回Storage
+    wx.setStorageSync('favorites', favorites);
+
     this.setData({ isFavorite });
     wx.showToast({
       title: isFavorite ? '已收藏' : '已取消收藏',
@@ -523,13 +546,14 @@ Page({
       if (!details) {
         throw new Error('商品数据获取失败');
       }
-
       if (!details?.primaryImage) {
         throw new Error('商品详情缺少主图');
       }
 
-      // 处理图片路径
-      const primaryImage = details.primaryImage.startsWith('http')
+      // 处理图片路径 - 修复本地图片被错误添加CDN前缀的问题
+      const isLocalPath = (path) => path.startsWith('/') || path.startsWith('./');
+
+      const primaryImage = (details.primaryImage.startsWith('http') || isLocalPath(details.primaryImage))
         ? details.primaryImage
         : `${cdnBase}${details.primaryImage}`;
 
@@ -537,7 +561,7 @@ Page({
       if (details.images?.length) {
         details.images.forEach(img => {
           if (!img) return;
-          const imageUrl = img.startsWith('http') ? img : `${cdnBase}${img}`;
+          const imageUrl = (img.startsWith('http') || isLocalPath(img)) ? img : `${cdnBase}${img}`;
           if (imageUrl !== primaryImage) {
             imgSrcs.push(imageUrl);
           }
@@ -560,6 +584,10 @@ Page({
         maxSalePrice
       };
 
+      // 检查是否已收藏
+      const favorites = wx.getStorageSync('favorites') || [];
+      const isFavorite = favorites.some(item => item.spuId === spuId);
+
       this.setData({
         details: updatedDetails,
         currentPrice: minSalePrice,
@@ -574,9 +602,10 @@ Page({
         maxLinePrice,
         current: 0,
         spuId,
-        swiperImageProps: { mode: 'aspectFill' },
+        swiperImageProps: { mode: 'aspectFit' }, // 保持之前的 fix
         loading: false,
         loadError: false,
+        isFavorite, // 设置收藏状态
         stockStatus: {
           stock: details.skuList.reduce((total, sku) => total + (sku.stockInfo?.stockQuantity || 0), 0),
           available: this.statusMap[details.status]?.available || false,

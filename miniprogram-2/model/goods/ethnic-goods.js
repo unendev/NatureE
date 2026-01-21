@@ -24,7 +24,7 @@ export const ethnicGoodsList = [
                 desc: '中式立领短上衣搭配黑金提花马面裙套装，复古时尚打卡必备',
                 images: [
                     '/assets/ethnic-images/ethnic_44.png',
-                    '/assets/ethnic-images/ethnic_195.png'
+                    '/assets/ethnic-images/ethnic_44.png'
                 ],
                 price: 32900
             }

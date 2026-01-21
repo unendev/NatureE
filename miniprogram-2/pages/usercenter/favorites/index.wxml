@@ -1,0 +1,6 @@
+<view class="favorites-page">
+  <goods-list goodsList="{{goodsList}}" />
+  <view wx:if="{{goodsList.length === 0}}" class="empty-state">
+    <text>暂无收藏商品</text>
+  </view>
+</view>

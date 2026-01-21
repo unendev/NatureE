@@ -30,7 +30,7 @@
           class="goods-image"
         />
         <view class="goods-info">
-          <view class="goods-name">{{item.name}}</view>
+          <view class="goods-name">{{item.title}}</view>
         </view>
       </view>
     </view>
