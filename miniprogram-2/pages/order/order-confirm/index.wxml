@@ -53,12 +53,12 @@
     </view>
     
     <!-- 发票信息 -->
-    <view class="invoice-section" bindtap="onReceipt">
-      <view class="invoice-left">
-        <text class="label">发票</text>
-        <text class="value">{{needInvoice ? (invoiceData.buyerName || '电子普通发票-个人') : '不开发票'}}</text>
+    <!-- 发票信息 -->
+    <view class="invoice-section">
+      <view class="invoice-row">
+        <text class="label">是否开发票</text>
+        <switch checked="{{needInvoice}}" bindchange="onInvoiceChange" color="#FF5F15" />
       </view>
-      <view class="right-arrow">></view>
     </view>
   </view>
 
@@ -78,7 +78,6 @@
         <price-component class="total-price" price="{{totalAmount}}" />
       </view>
     </view>
-  </view>
 
   <!-- 底部结算栏 -->
   <view class="bottom-bar">

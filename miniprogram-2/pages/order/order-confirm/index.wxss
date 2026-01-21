@@ -177,6 +177,11 @@
 
 /* 发票部分 */
 .invoice-section {
+  display: block; /* 改为 block 以便容纳内部的 flex 容器 */
+  padding: 0;
+}
+
+.invoice-row {
   display: flex;
   justify-content: space-between;
   align-items: center;

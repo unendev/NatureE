@@ -551,13 +551,9 @@ Page({
     });
   },
 
-  onReceipt() {
-    // 跳转 开发票
-    const invoiceData = this.invoiceData || {};
-    wx.navigateTo({
-      url: `/pages/order/receipt/index?invoiceData=${JSON.stringify(
-        invoiceData,
-      )}`,
+  onInvoiceChange(e) {
+    this.setData({
+      needInvoice: e.detail.value
     });
   },
 

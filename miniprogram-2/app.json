@@ -67,7 +67,8 @@
         "address/list/index",
         "address/edit/index",
         "person-info/index",
-        "login/index"
+        "login/index",
+        "favorites/index"
       ]
     },
     {

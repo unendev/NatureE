@@ -2,12 +2,39 @@ import request from '../../utils/request';
 import errorHandler from '../../utils/error-handler';
 
 // 获取首页数据
+import { ethnicGoodsList } from '../../model/goods/ethnic-goods';
+
+// 获取首页数据
 export async function fetchHome() {
   try {
     const data = await request.get('/api/home');
+
+    // 从 ethnicGoodsList 生成首页分类导航
+    // 取前10个民族 + "全部商品"
+    const ethnicCategories = ethnicGoodsList.slice(0, 9).map(group => {
+      let icon = '';
+      if (group.items && group.items.length > 0 && group.items[0].images && group.items[0].images.length > 0) {
+        icon = group.items[0].images[0];
+      }
+      return {
+        id: group.categoryId,
+        name: group.nation,
+        icon: icon // 组件使用的是 icon 字段
+      };
+    });
+
+    const categoryList = [
+      {
+        id: 0,
+        name: '全部商品',
+        icon: ethnicGoodsList[0]?.items[0]?.images[0] || ''
+      },
+      ...ethnicCategories
+    ];
+
     return {
       bannerList: data.banners || [],
-      categoryList: data.categories || [],
+      categoryList: categoryList, // 使用动态生成的分类
       goodsList: data.goods || []
     };
   } catch (err) {
