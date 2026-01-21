@@ -10,8 +10,8 @@ export async function fetchHome() {
     const data = await request.get('/api/home');
 
     // 从 ethnicGoodsList 生成首页分类导航
-    // 取前11个民族 + "全部商品" = 12个，凑齐3行（每行4个）
-    const ethnicCategories = ethnicGoodsList.slice(0, 11).map(group => {
+    // 取前12个民族，凑齐3行（每行4个）
+    const categoryList = ethnicGoodsList.slice(0, 12).map(group => {
       let icon = '';
       if (group.items && group.items.length > 0 && group.items[0].images && group.items[0].images.length > 0) {
         icon = group.items[0].images[0];
@@ -22,15 +22,6 @@ export async function fetchHome() {
         icon: icon // 组件使用的是 icon 字段
       };
     });
-
-    const categoryList = [
-      {
-        id: 0,
-        name: '全部商品',
-        icon: ethnicGoodsList[0]?.items[0]?.images[0] || ''
-      },
-      ...ethnicCategories
-    ];
 
     return {
       bannerList: data.banners || [],
