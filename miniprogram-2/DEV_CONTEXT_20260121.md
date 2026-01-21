@@ -50,11 +50,14 @@
 
 ---
 
-## 📂 关键文件变更 (File Changes)
+### 6. 细节优化 (Polishing)
+*   **Fix**: 首页宫格分类增加到 12 个（11民族+全部），保证 3 行 4 列布局工整。
+*   **Fix**: 收藏页价格显示错误（便宜100倍），因组件单位为“分”而数据为“元”，已修正 `item.price * 100`。
 
+## 📂 关键文件变更 (File Changes)
 ### 1. `services/home/home.js`
 > 首页数据获取服务
-- **Change**: 引入 `ethnicGoodsList`，动态生成前 9 个民族 + “全部商品”作为分类导航。
+- **Change**: 引入 `ethnicGoodsList`，动态生成前 11 个民族 + “全部商品”作为分类导航。
 - **Fix**: 字段映射从 `imgUrl` 改为 `icon`。
 
 ### 2. `pages/order/order-confirm/index.wxml` & `index.js`

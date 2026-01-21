@@ -15,7 +15,7 @@ Page({
             id: item.spuId,
             spuId: item.spuId,
             title: item.title,
-            price: item.price,
+            price: item.price * 100, // 组件需要分，存储的是元
             primaryImage: item.thumb, // 组件优先使用 primaryImage
             image: item.thumb
         }));
