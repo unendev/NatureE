@@ -33,8 +33,8 @@ Page({
     console.log('订单列表页 onLoad:', query);
     const { status = orderConfig.orderList.defaultTab } = query;
     const statusNum = parseInt(status, 10);
-    
-    this.setData({ 
+
+    this.setData({
       curTab: statusNum,
       page: 1,
       orderList: []
@@ -67,10 +67,10 @@ Page({
     const { curTab, page, pageSize } = this.data;
 
     if (reset) {
-      this.setData({ 
+      this.setData({
         page: 1,
         orderList: [],
-        loading: true 
+        loading: true
       });
     }
 
@@ -80,7 +80,7 @@ Page({
         page: reset ? 1 : page,
         pageSize
       });
-      
+
       console.log('加载订单列表:', result);
 
       if (!result.data.length) {
@@ -102,7 +102,7 @@ Page({
     } catch (err) {
       console.error('加载订单列表失败:', err);
       showToast('加载失败');
-      this.setData({ 
+      this.setData({
         loading: false,
         refreshing: false
       });
@@ -152,7 +152,7 @@ Page({
   // 取消订单
   async onCancelOrder(e) {
     const { orderId } = e.currentTarget.dataset;
-    
+
     try {
       const { confirm } = await showModal({
         title: '提示',
@@ -200,6 +200,68 @@ Page({
     } catch (err) {
       console.error('确认收货失败:', err);
       showToast('确认失败');
+    }
+  },
+
+  // 申请退款
+  async onApplyRefund(e) {
+    const { orderId } = e.currentTarget.dataset;
+
+    try {
+      const { confirm } = await showModal({
+        title: '申请售后',
+        content: '确定要申请退款吗？'
+      });
+
+      if (!confirm) return;
+
+      // 1. 找到该订单信息
+      const order = this.data.orderList.find(o => o.orderId === orderId);
+      if (!order) {
+        showToast('订单不存在');
+        return;
+      }
+
+      // 2. 将订单状态改为售后中 (模拟，实际可能需要后端接口)
+      // 这里简单地把订单从列表中移除，或者标记一下，重点是写入售后记录
+      // 为了演示，我们不改订单状态，只是提示申请成功，并在售后列表增加一条
+
+      // 3. 写入售后记录到 Storage
+      const newAfterSale = {
+        id: `AS${Date.now()}`,
+        orderNo: order.orderNo,
+        status: 1, // 处理中
+        statusDesc: '处理中',
+        image: order.goodsList[0]?.primaryImage || this.data.defaultGoodsImage,
+        goodsName: order.goodsList[0]?.title || '商品',
+        num: order.goodsList.length,
+        amount: (order.totalAmount / 100).toFixed(2)
+      };
+
+      const afterSaleList = wx.getStorageSync('afterSaleList') || [];
+      afterSaleList.unshift(newAfterSale);
+      wx.setStorageSync('afterSaleList', afterSaleList);
+
+      showToast('申请成功', 'success');
+
+      // 4. 从当前订单列表中移除该订单，防止重复申请
+      // 同时也可以视为该订单已流转到售后流程
+      // 更新本地存储中的订单列表（如果是模拟数据源）
+      await orderManager.deleteOrder(orderId); // 复用删除逻辑将订单从这里移走
+
+      // 刷新列表
+      this.loadOrderList(true);
+
+      // 延迟跳转到售后列表查看
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/usercenter/after-sale/list/index'
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error('申请售后失败:', err);
+      showToast('申请失败');
     }
   },
 

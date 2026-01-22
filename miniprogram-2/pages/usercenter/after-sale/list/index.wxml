@@ -1,0 +1,36 @@
+<view class="page-container">
+  <t-tabs defaultValue="{{0}}" bind:change="onTabsChange">
+    <t-tab-panel label="售后申请" value="{{0}}" />
+    <t-tab-panel label="处理中" value="{{1}}" />
+    <t-tab-panel label="申请记录" value="{{2}}" />
+  </t-tabs>
+
+  <view class="list-content">
+    <view class="empty-state" wx:if="{{list.length === 0}}">
+      <view class="empty-text">您还没有售后记录</view>
+    </view>
+    
+    <block wx:else>
+      <view class="after-sale-card" wx:for="{{list}}" wx:key="id">
+        <view class="card-header">
+          <text class="order-no">订单号：{{item.orderNo}}</text>
+          <text class="status">{{item.statusDesc}}</text>
+        </view>
+        <view class="goods-info">
+          <image class="goods-img" src="{{item.image}}" mode="aspectFill" />
+          <view class="goods-detail">
+            <view class="goods-name">{{item.goodsName}}</view>
+            <view class="goods-attr">
+              <text>数量：{{item.num}}</text>
+              <text>退款金额：¥{{item.amount}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="card-footer">
+          <view class="btn contact-btn">联系客服</view>
+          <view class="btn view-btn">查看进度</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

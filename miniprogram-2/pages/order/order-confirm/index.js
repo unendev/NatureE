@@ -232,6 +232,24 @@ Page({
 
       const { orderId } = result;
 
+      // 如果需要发票，保存发票记录到本地存储（模拟动态化）
+      if (this.data.needInvoice) {
+        const newInvoice = {
+          id: `INV${Date.now()}`,
+          createTime: new Date().toLocaleString(),
+          status: 1, // 开票中
+          statusDesc: '开票中',
+          type: '电子普通发票',
+          title: '个人', // 简化处理，默认个人
+          amount: (totalAmount / 100).toFixed(2), // 转为元
+          orderId: orderId
+        };
+
+        const invoiceList = wx.getStorageSync('invoiceList') || [];
+        invoiceList.unshift(newInvoice); // 新发票排前面
+        wx.setStorageSync('invoiceList', invoiceList);
+      }
+
       // 获取要清除的商品SKU ID列表
       const skuIdsToRemove = goodsList.map(item => item.skuId);
 

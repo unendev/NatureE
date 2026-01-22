@@ -90,6 +90,16 @@
                 catchtap="onConfirmReceipt"
               >确认收货</button>
             </block>
+
+            <!-- 增加申请退款按钮 (针对待发货和待收货) -->
+            <block wx:if="{{item.status === OrderStatus.PENDING_DELIVERY || item.status === OrderStatus.PENDING_RECEIPT}}">
+              <button 
+                class="btn btn-default"
+                data-order-id="{{item.orderId}}"
+                catchtap="onApplyRefund"
+                style="margin-left: 20rpx;" 
+              >申请退款</button>
+            </block>
           </view>
         </view>
       </view>

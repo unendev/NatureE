@@ -66,6 +66,10 @@ Page({
       { text: '个人信息', icon: 'user', url: '/pages/usercenter/person-info/index' },
       { text: '我的收藏', icon: 'heart', url: '/pages/usercenter/favorites/index' },
       { text: '收货地址', icon: 'location', url: '/pages/usercenter/address/list/index' },
+      // 新增功能
+      { text: '发票管理', icon: 'file-copy', url: '/pages/usercenter/invoice/list/index' },
+      { text: '退换货管理', icon: 'refresh', url: '/pages/usercenter/after-sale/list/index' },
+
       { text: 'AI客服', icon: 'chat', url: '/pages/ai-service/index' },
       { text: '在线设计', icon: 'edit', url: '/pages/design/design' }
     ],

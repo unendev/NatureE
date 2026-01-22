@@ -1,0 +1,39 @@
+<view class="page-container">
+  <t-tabs defaultValue="{{0}}" bind:change="onTabsChange" t-class="custom-tabs">
+    <t-tab-panel label="全部发票" value="{{0}}" />
+    <t-tab-panel label="开票中" value="{{1}}" />
+    <t-tab-panel label="已开票" value="{{2}}" />
+  </t-tabs>
+
+  <view class="invoice-list">
+    <view class="empty-state" wx:if="{{invoiceList.length === 0}}">
+      <view class="empty-text">暂时没有发票记录哦 ~</view>
+    </view>
+    
+    <block wx:else>
+      <view class="invoice-card" wx:for="{{invoiceList}}" wx:key="id">
+        <view class="card-header">
+          <text class="time">{{item.createTime}}</text>
+          <text class="status {{item.status === 1 ? 'pending' : 'success'}}">{{item.statusDesc}}</text>
+        </view>
+        <view class="card-body">
+          <view class="info-row">
+            <text class="label">发票类型</text>
+            <text class="value">{{item.type}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">发票抬头</text>
+            <text class="value">{{item.title}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">开票金额</text>
+            <text class="amount">¥{{item.amount}}</text>
+          </view>
+        </view>
+        <view class="card-footer">
+          <view class="btn detail-btn">查看详情</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
