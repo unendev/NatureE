@@ -2,6 +2,14 @@
 
 一个集成 AI 民族服装设计功能的微信小程序电商平台。
 
+## 项目截图
+
+| 首页 | 商品列表 | 购物车 |
+|---|---|---|
+| ![首页](screenshots/home.jpg) | ![商品列表](screenshots/category.jpg) | ![购物车](screenshots/cart.jpg) |
+| **个人中心** | **AI客服** | **在线设计** |
+| ![个人中心](screenshots/profile.jpg) | ![AI客服](screenshots/ai-service.jpg) | ![在线设计](screenshots/design.jpg) |
+
 ## 项目简介
 
 本项目是基于微信小程序原生框架开发的电商购物平台，提供完整的购物流程，并集成了 AI 民族服装设计功能，让用户可以体验智能化的服装设计服务。
@@ -137,14 +145,6 @@ npm install
 - 开发环境：DEBUG 级别
 - 生产环境：INFO 级别
 - 统一的日志格式和输出
-
-## 项目截图
-
-| 首页 | 商品列表 | 购物车 |
-|---|---|---|
-| ![首页](screenshots/home.jpg) | ![商品列表](screenshots/category.jpg) | ![购物车](screenshots/cart.jpg) |
-| **个人中心** | **AI客服** | **在线设计** |
-| ![个人中心](screenshots/profile.jpg) | ![AI客服](screenshots/ai-service.jpg) | ![在线设计](screenshots/design.jpg) |
 
 ## 配置说明
 
