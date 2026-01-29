@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "商品分类",
-  "usingComponents": {
-    "t-loading": "tdesign-miniprogram/loading/loading",
-    "t-image": "tdesign-miniprogram/image/image",
-    "price": "/components/price/index",
-    "load-more": "/components/load-more/index"
-  }
-}
